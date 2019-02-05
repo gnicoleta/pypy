@@ -18,26 +18,33 @@ content = response.text
 soup = BeautifulSoup(content, features="html.parser")
 
 
-# find_all = Extracts a list of Tag objects that match the given criteria.
-#            You can specify the name of the Tag and any
-#            attributes you want the Tag to have.
+class Link:
+    def __init__(self, soup):
+        self.soup = soup
 
-def get_links(soup):
-    print("\nLinks in page:")
-    for link in soup.find_all('a'):
-        good_link = str(link.get('href'))
+    def check_link(self, good_link):
         if validators.url(good_link):
-            print(good_link)
+            return good_link
 
-def get_pdfs(soup):
-    print("\nPDFs in page:")
-    for link in soup.find_all('a'):
-        good_link = str(link.get('href'))
+    def parsing_method(self):
+        for link in soup.find_all('a'):
+            good_link = self.check_link(str(link.get('href')))
+            if good_link!= None:
+                print(good_link)
+
+class PDF(Link):
+    def __init__(self, soup):
+        self.soup = soup
+
+    def check_link(self, good_link):
         if validators.url(good_link) and good_link.rsplit('.',1)[-1] == 'pdf':
-            print(good_link)
+            return good_link
 
 def menu():
     option = True
+    links = Link(soup)
+    pdfs = PDF(soup)
+
     while(option):
         print("\n1. Get links from page")
         print("2. Get pdfs from page")
@@ -45,13 +52,12 @@ def menu():
 
         option = input("Enter option: ")
         if option == "1":
-            get_links(soup)
+            links.parsing_method()
         elif option == "2":
-            get_pdfs(soup)
+            pdfs.parsing_method()
         elif option == "3":
             option = False
         elif option != "":
             print("\n Not a valid option")
 
 menu()
-
